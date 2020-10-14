@@ -139,6 +139,8 @@ printControls(WINDOW* WIN) {
 	wprintw(WIN, " q: rotate counterclockwise\n");
 	wprintw(WIN, " SPACE: place piece\n");
 	wprintw(WIN, " c: clear board\n");
+	wprintw(WIN, " x: exit game\n");
+	wprintw(WIN, " z: shuffle pieces\n");
 }
 
 void 

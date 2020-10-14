@@ -1,7 +1,10 @@
-This code implements the game "Genetic Engineering" invented by Alexey Pajitnov and implemented by Luke Burger.
+This code implement the game "Genetic Engineering" invented by Alexey Pajitnov and implemented by Luke Burger.
 
 Upon launch, the user is greeted with a simple menu screen.  The user can navigate to the controls menu or start the game.
 
 When the game is started, 6 random pieces are generated, and the game environment is printed to the screen.  The goal of the game is to use the pieces provided to fill the game board.  Note that the piece generation system guarentees no level of variety among the pieces, nor is a solution guarenteed.
 
-If the user is able to fill the board, the game exits back to the terminal.  In its current implementation, if the user is unable to find a solution, or if a solution does not exist, the user must simply exit with CTRL+C.
+If the user is able to fill the board, a victory screen is displayed and the program exits.
+
+In the event that the user is unable to find a solution, or if no solution exists, the user has the option to shuffle the pieces and try again or exit.  In the latter case, a farewell message is printed and the program exits
+

@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <ncurses.h>
 #include "tetrominoes.h"
 
@@ -25,6 +26,7 @@ int main () {
 	cbreak();
 	keypad(stdscr, TRUE);
 	WINDOW* WIN;
+	curs_set(0);
 	WIN = newwin(20, 53, 0, 0);
 
 	char menuInput = ' ';
@@ -68,8 +70,9 @@ int main () {
 	unsigned short board [6][4];
 	memset(board, 0, sizeof(board));
 
+	int gameOver = 0;
 	int gameWon = 0;
-	while (!gameWon) {
+	while (!gameOver) {
 		//ensure the window is updated
 		werase(WIN);
 		printBoard(board, WIN);
@@ -155,6 +158,7 @@ int main () {
 
 						break;
 					case 'w':
+						//moves piece up
 						tetrominoes[input - '1'].yCoord--;
 						if(OOB(tetrominoes[input - '1'])) {
 							tetrominoes[input - '1'].yCoord++;
@@ -162,6 +166,7 @@ int main () {
 
 						break;
 					case 'a':
+						//moves piece left
 						tetrominoes[input - '1'].xCoord--;
 						if(OOB(tetrominoes[input - '1'])) {
 							tetrominoes[input - '1'].xCoord++;
@@ -169,20 +174,24 @@ int main () {
 
 						break;
 					case 's':
+						//moves piece down
 						tetrominoes[input - '1'].yCoord++;
 						if(OOB(tetrominoes[input - '1'])) {
 							tetrominoes[input - '1'].yCoord--;
 						}
 						break;
 					case 'd':
+						//moves piece right
 						tetrominoes[input - '1'].xCoord++;
 						if(OOB(tetrominoes[input - '1'])) {
 							tetrominoes[input - '1'].xCoord--;
 						}
 						break;
 					case ' ':
+						//adds piece to board
 						addTetromino(board, tetrominoes[input - '1']);
 						tetrominoes[input - '1'].inUse = 1;
+						//if any index of game represenation is 2, the placement is not valid
 						int validPlacement = 1;
 						for(int i = 0; i < 6; i++) {
 							for(int j = 0; j < 4; j++) {
@@ -192,6 +201,7 @@ int main () {
 							}
 						}
 
+						//if placement is valid, end turn, else remove piece
 						if(!validPlacement) {
 							removeTetromino(board, tetrominoes[input - '1']);
 							tetrominoes[input - '1'].inUse = 0;
@@ -201,9 +211,24 @@ int main () {
 
 						break;
 					case 'c':
+						//reset game board representaion
 						memset(board, 0, sizeof(board));
+						//reset pieces
 						for (int i = 0; i < 6; i++) {
 							tetrominoes[i].inUse = 0;
+						}
+						turnOver = 1;
+
+						break;
+					case 'z':
+						//shuffles the piece types, clearing board
+						memset(board, 0, sizeof(board));
+						for(int i = 0; i < 6; i++) {
+							tetrominoes[i].pieceType = rand() % 7;
+							tetrominoes[i].inUse = 0;
+							tetrominoes[i].xCoord = 3;
+							tetrominoes[i].yCoord = 1;
+							tetrominoes[i].orientation = 0;
 						}
 						turnOver = 1;
 				}
@@ -211,10 +236,12 @@ int main () {
 
 			//check if the game has been won
 			gameWon = 1;
+			gameOver = 1;
 			for(int i = 0; i < 6; i++) {
 				for(int j = 0; j < 4; j++) {
 					if(board[i][j] == 0) {
 						gameWon = 0;
+						gameOver = 0;
 					}
 				}
 			}					
@@ -224,11 +251,41 @@ int main () {
 			for(int i = 0; i < 6; i++) {
 				tetrominoes[i].inUse = 0;
 			}
+		} else if (input == 'z') {
+			//shuffles the piece types, clearing board
+			memset(board, 0, sizeof(board));
+			for(int i = 0; i < 6; i++) {
+				tetrominoes[i].pieceType = rand() % 7;
+				tetrominoes[i].inUse = 0;
+				tetrominoes[i].xCoord = 3;
+				tetrominoes[i].yCoord = 1;
+				tetrominoes[i].orientation = 0;
+			}
+		} else if (input == 'x') {
+			gameOver = 1;
 		} else {
 			;		//input ignored if not valid
 		}
 	}
 
+
+	//Print final screen, different if game won
+	if (gameWon) {
+		werase(WIN);
+		wmove(WIN, 0, 0);
+		wprintw(WIN, "\n\tCongratulations! You win!\n");
+		wprintw(WIN, "\t   Thanks For Playing");
+		wrefresh(WIN);
+		sleep(3);
+	} else {
+		werase(WIN);
+		wmove(WIN, 0, 0);
+		wprintw(WIN, "\n\tThanks for playing!");
+		wrefresh(WIN);
+		sleep(3);
+	}
+
+	delwin(WIN);
 	endwin();
 
 	return 0;
